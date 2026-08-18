@@ -1,7 +1,16 @@
-node_modules/
-.env
+# Python
 venv/
-__pycache__/
+_pycache_/
 *.pyc
+.env
+
+# Node
+node_modules/
 dist/
-build/
+
+# Data
+data/*.xlsx
+
+# OS
+.DS_Store
+Thumbs.db
