@@ -1,16 +1,18 @@
 # Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
 venv/
-_pycache_/
-*.pyc
+.venv/
+env/
+
+# Tcherly student datasets
+Backend/data/*.xlsx
+Backend/data/*.xls
+
+# Generated data
+Backend/data/*.csv
+
+# Environment variables
 .env
-
-# Node
-node_modules/
-dist/
-
-# Data
-data/*.xlsx
-
-# OS
-.DS_Store
-Thumbs.db
