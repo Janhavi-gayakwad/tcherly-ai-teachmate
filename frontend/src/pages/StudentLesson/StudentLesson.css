@@ -1,0 +1,103 @@
+.student-page {
+  padding: 40px;
+  background: #f3f4f8;
+  min-height: calc(100vh - 60px);
+}
+
+.video-player {
+  height: 450px;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.play-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 35px;
+}
+
+.lesson-info {
+  background: white;
+  padding: 25px;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+
+.lesson-info h1 {
+  margin-bottom: 10px;
+}
+
+.feedback-card {
+  margin-top: 30px;
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+}
+
+.feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.feedback-grid button {
+  height: 80px;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.difficult {
+  background: #ff6b6b;
+}
+
+.easy {
+  background: #f7b731;
+}
+
+.boring {
+  background: #6c5ce7;
+}
+
+.engaging {
+  background: #20bf6b;
+}
+
+.active {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0,0,0,.2);
+}
+
+.empty-page {
+  padding: 100px;
+  text-align: center;
+  font-size: 24px;
+}
+
+@media(max-width:768px){
+
+.feedback-grid{
+
+grid-template-columns:1fr 1fr;
+
+}
+
+.video-player{
+
+height:250px;
+
+}
+
+}

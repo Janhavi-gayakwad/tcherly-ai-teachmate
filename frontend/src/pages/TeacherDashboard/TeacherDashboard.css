@@ -1,0 +1,243 @@
+.dashboard-container {
+  min-height: calc(100vh - 55px);
+  background: #eeeeee;
+  padding: 20px 13%;
+  box-sizing: border-box;
+}
+
+/* =========================
+   COURSE HEADER
+========================= */
+
+.course-header {
+  background: white;
+  min-height: 78px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  box-sizing: border-box;
+}
+
+.course-header h2 {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 400;
+  color: #222;
+}
+
+.course-header h2 span {
+  color: #4b4df5;
+}
+
+/* Buttons */
+
+.course-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.new-lesson-btn,
+.options-btn {
+  border: none;
+  border-radius: 5px;
+  padding: 13px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.new-lesson-btn {
+  background: #4b4df5;
+  color: white;
+}
+
+.new-lesson-btn:hover {
+  background: #3e40d9;
+}
+
+.options-btn {
+  background: #ddd;
+  color: #222;
+}
+
+.options-btn:hover {
+  background: #ccc;
+}
+
+/* =========================
+   LESSON SECTION
+========================= */
+
+.lessons-section {
+  background: white;
+  margin-top: 0;
+  padding: 35px 25px 50px;
+  border: 1px solid #ddd;
+  border-top: none;
+}
+
+.lessons-section h2 {
+  font-size: 25px;
+  font-weight: 400;
+  margin: 0 0 28px;
+  color: #333;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.lessons-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.lessons-table th {
+  text-align: left;
+  font-size: 17px;
+  font-weight: 700;
+  padding: 0 15px 18px;
+  border-bottom: 1px solid #e2e2e2;
+  color: #222;
+}
+
+.lessons-table td {
+  padding: 20px 15px;
+  font-size: 17px;
+  color: #222;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.lessons-table th:first-child,
+.lessons-table td:first-child {
+  width: 100px;
+}
+
+.lessons-table th:nth-child(2) {
+  width: auto;
+}
+
+.actions-heading {
+  width: 180px;
+  text-align: center !important;
+}
+
+.lesson-actions {
+  text-align: center;
+}
+
+.lesson-actions button {
+  border: none;
+  background: #ddd;
+  width: 42px;
+  height: 38px;
+  margin-left: 5px;
+  border-radius: 4px;
+  font-size: 17px;
+  cursor: pointer;
+  color: #24364a;
+}
+
+.lesson-actions button:hover {
+  background: #ccc;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+  .dashboard-container {
+    padding: 20px 5%;
+  }
+
+  .course-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .course-actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 650px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .course-header h2 {
+    font-size: 20px;
+  }
+
+  .course-actions {
+    flex-direction: column;
+  }
+
+  .new-lesson-btn,
+  .options-btn {
+    width: 100%;
+  }
+
+  .lessons-section {
+    padding: 25px 15px;
+    overflow-x: auto;
+  }
+
+  .lessons-table {
+    min-width: 650px;
+  }
+}
+.options-wrapper {
+  position: relative;
+}
+
+.options-menu {
+  position: absolute;
+  right: 0;
+  top: 48px;
+
+  width: 180px;
+
+  background: white;
+
+  border: 1px solid #ddd;
+
+  border-radius: 6px;
+
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+
+  z-index: 100;
+}
+
+.options-menu button {
+  display: block;
+
+  width: 100%;
+
+  text-align: left;
+
+  padding: 12px 15px;
+
+  border: none;
+
+  background: white;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.options-menu button:hover {
+  background: #f4f4f4;
+}
+.no-lessons {
+  text-align: center;
+  padding: 40px !important;
+  color: #777;
+  font-size: 16px;
+}
