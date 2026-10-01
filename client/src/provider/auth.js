@@ -8,6 +8,7 @@ export const AuthContext = createContext({
   register: () => {},
   refresh: () => {},
   request: async () => {},
+  getAuthHeader: () => null,
   logout: () => {},
   viewAdvanced: () => {},
   isTourOpen: false,
@@ -159,6 +160,9 @@ function useProvideAuth() {
     }
   }, []);
 
+  // Access token for services outside the Node API (e.g. the TeachMate assistant).
+  const getAuthHeader = React.useCallback(() => (memoryToken ? memoryToken.token : null), []);
+
   const syncLogout = (event) => {
     // if (event.key === "logout") {
     //   window.location.href = "/";
@@ -240,6 +244,7 @@ function useProvideAuth() {
     register,
     refresh,
     request,
+    getAuthHeader,
     logout,
     viewAdvanced,
     isTourOpen,

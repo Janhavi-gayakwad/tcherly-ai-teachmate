@@ -53,25 +53,11 @@ const feedbackOptions = {
   engaging: engagingTypes.map(t => ({ id: t, name: feedbackTypes.engaging[t] }))
 };
 
-const researchUsers = [
-  {
-    email: "pnkjchavan@gmail.com",
-    password: "Pankaj@1234",
-    name: "Pankaj Chavan"
-  },
-  {
-    email: "localhoax0@gmail.com",
-    password: "localhoax@1234",
-    name: "Bhupender Singh"
-  }
-];
-
 module.exports = {
   feedbackTypes,
   difficultTypes,
   easyTypes,
   boringTypes,
   engagingTypes,
-  feedbackOptions,
-  researchUsers
+  feedbackOptions
 };

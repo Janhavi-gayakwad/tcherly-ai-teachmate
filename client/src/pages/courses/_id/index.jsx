@@ -204,9 +204,10 @@ function CourseInfo({ id = "" }) {
         }
         return;
       }
-      setErrors({ formError: "Couldn't save lesson" });
+      setErrors({ formError: (data && data.message) || "Couldn't save lesson" });
     } catch (error) {
-      setErrors({ formError: "Some error occured" });
+      const message = error && error.response && error.response.data && error.response.data.message;
+      setErrors({ formError: message || "Some error occured" });
     }
   };
 
@@ -451,6 +452,7 @@ function CourseInfo({ id = "" }) {
                 </Form.Group>
               </div>
               <div className="col-12 text-center">
+                {formik.errors.formError && <div className="text-danger mb-2">{formik.errors.formError}</div>}
                 <Button onClick={formik.handleSubmit}>
                   {formik.isSubmitting ? (
                     <Spinner animation="border" role="status" size="sm">
@@ -512,6 +514,7 @@ function CourseInfo({ id = "" }) {
                 </Form.Group>
               </div>
               <div className="col-12 text-center">
+                {editFormik.errors.formError && <div className="text-danger mb-2">{editFormik.errors.formError}</div>}
                 <Button onClick={editFormik.handleSubmit}>
                   {editFormik.isSubmitting ? (
                     <Spinner animation="border" role="status" size="sm">

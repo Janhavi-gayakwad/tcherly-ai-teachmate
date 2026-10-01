@@ -19,7 +19,7 @@ const verifyResourceIsForUser = (extractorFn) => async (req, res, next) => {
 
     if (extractedId === true) return next();
 
-    return res.sendStatus(401);
+    return res.sendStatus(403);
   } catch (error) {
     console.log(error);
     return res.sendStatus(500);

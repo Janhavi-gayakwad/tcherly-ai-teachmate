@@ -93,6 +93,8 @@ Comprehensive architectural specifications and system diagrams are documented in
 
 ## Installation & Setup
 
+> **Team members / first time here?** Follow **[HOW_TO_RUN.md](HOW_TO_RUN.md)**: a step-by-step guide from the zip file to a running project, including the TeachMate AI assistant. In short: install Node.js, Python and MongoDB → `npm run setup` → add your Gemini key to `.env` → `npm run dev` → open http://localhost:8080.
+
 ### Prerequisites
 
 Ensure you have the following installed:

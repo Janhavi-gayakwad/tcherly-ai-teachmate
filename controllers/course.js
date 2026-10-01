@@ -32,6 +32,20 @@ const checkLessonBelongsToUser = async (req) => {
   }
 };
 
+const checkBookmarkBelongsToUser = async (req) => {
+  try {
+    const user = req.user ? req.user._id : null;
+    const { bookmark_id } = req.params;
+
+    if (!user || !isValidObjectId(bookmark_id)) return false;
+
+    return Boolean(await Lesson.exists({ user, bookmarks: bookmark_id }));
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
 const getAllByUser = async (req, res) => {
   try {
     const user_id = req.user ? req.user._id : null;
@@ -436,4 +450,5 @@ module.exports = {
   editCourse,
   deleteCourse,
   checkLessonBelongsToUser,
+  checkBookmarkBelongsToUser,
 };

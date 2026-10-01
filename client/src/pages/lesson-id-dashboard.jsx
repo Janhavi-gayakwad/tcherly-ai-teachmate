@@ -7,6 +7,7 @@ import useFeedback, { FeedbackProvider } from "provider/feedback";
 import "../assets/styles/teacher-dashboard.scss";
 
 import AdvancedDashboard from "components/Dashboard/Advanced";
+import TeachMate from "components/TeachMate/TeachMate";
 import Tour from "components/Tour";
 import { NotFound } from "./not-found";
 
@@ -146,10 +147,13 @@ function LessonIdDashboard() {
   if (!user) return <Redirect to="/login" />;
   if (lesson) {
     return (
-      <AdvancedDashboard
-        research={user.feature_level === "advanced-research"}
-        locked={user.feature_level === "basic"}
-      />
+      <>
+        <AdvancedDashboard
+          research={user.feature_level === "advanced-research"}
+          locked={user.feature_level === "basic"}
+        />
+        <TeachMate />
+      </>
     );
   }
 

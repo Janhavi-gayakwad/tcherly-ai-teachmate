@@ -4,6 +4,9 @@ const Bookmark = require("../database/models/bookmark");
 const { dashIt } = require("../handlers/misc");
 const { youtube } = require("../utils/youtube");
 
+const lessonHasBookmark = (lesson, bookmarkId) =>
+  Boolean(bookmarkId) && Array.isArray(lesson.bookmarks) && lesson.bookmarks.some((b) => String(b) === String(bookmarkId));
+
 const genName = (name = "") => name + "-" + crs({ length: 6, characters: "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" });
 
 const saveLessonAnalysis = async (req, res) => {
@@ -86,7 +89,7 @@ const lessonSwitchBookmark = async (req, res) => {
     const { switch_to } = req.body;
 
     const lesson = await Lesson.findOne({ _id: id });
-    if (lesson) {
+    if (lesson && lessonHasBookmark(lesson, switch_to)) {
       const switchToBookmark = await Bookmark.findOne({ _id: switch_to });
 
       if (switchToBookmark) {
@@ -232,11 +235,14 @@ const lessonDeleteBookmark = async (req, res) => {
     if (req.isAuthenticated()) {
       const lesson = await Lesson.findOne({ _id: id });
 
-      if (lesson) {
+      if (lesson && lessonHasBookmark(lesson, delete_id)) {
         const bookmarkDeleted = await Bookmark.findOneAndDelete({ _id: delete_id });
-        const switchToBookmark = await Bookmark.findOne({ _id: switch_to });
+        const switchToBookmark = lessonHasBookmark(lesson, switch_to) ? await Bookmark.findOne({ _id: switch_to }) : null;
 
         if (bookmarkDeleted) {
+          lesson.bookmarks = lesson.bookmarks.filter((b) => !b.equals(bookmarkDeleted._id));
+          await lesson.save();
+
           if (switchToBookmark) {
             lesson.current_bookmark = switchToBookmark._id;
 
