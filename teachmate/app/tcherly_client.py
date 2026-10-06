@@ -49,6 +49,15 @@ class TcherlyClient:
         data = await self._get(f"/lessons/{lesson_id}/feedback", min=start_min, max=end_min)
         return {"lesson": data["lesson"], "feedback": data["feedback"]}
 
+    async def behaviour(self, lesson_id: str, start_min: int | None = None, end_min: int | None = None) -> dict:
+        """Viewing behaviour (pauses, jumps back/forward, how far students got); optional window summary."""
+        params = {"min": start_min, "max": end_min} if start_min is not None and end_min is not None else {}
+        return (await self._get(f"/lessons/{lesson_id}/behaviour", **params))["behaviour"]
+
+    async def courses(self) -> list[dict]:
+        """The teacher's own courses (owner-filtered by the Node API)."""
+        return (await self._get("/courses"))["courses"]
+
     async def course(self, course_id: str) -> dict:
         return (await self._get(f"/courses/{course_id}"))["course"]
 

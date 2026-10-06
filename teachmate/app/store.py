@@ -1,8 +1,9 @@
-"""MongoDB persistence for TeachMate conversations (collection `teachmate_conversations`).
+"""MongoDB persistence for TeachMate: conversations (`teachmate_conversations`) and lesson reports (`teachmate_reports`).
 
 A conversation stores the visible messages (for the UI and reports), the Gemini
 content history (to continue the conversation), the evidence log (so citations
 still resolve after a reload) and any reflections proposed or saved.
+A report stores its sections, the evidence behind them and its grounding result.
 """
 import uuid
 from datetime import datetime, timezone
@@ -17,6 +18,7 @@ from .config import settings
 _client = AsyncMongoClient(settings.mongo_uri, tz_aware=True)
 _db = _client.get_default_database("test-debe")
 conversations = _db["teachmate_conversations"]
+reports = _db["teachmate_reports"]
 
 
 def _now() -> datetime:
@@ -25,6 +27,25 @@ def _now() -> datetime:
 
 async def ensure_indexes() -> None:
     await conversations.create_index([("teacher_id", 1), ("lesson_id", 1), ("updated_at", DESCENDING)])
+    await reports.create_index([("teacher_id", 1), ("lesson_id", 1), ("created_at", DESCENDING)])
+
+
+async def save_report(teacher_id: str, report: dict[str, Any]) -> dict[str, Any]:
+    doc = {"_id": uuid.uuid4().hex, "teacher_id": teacher_id, **report}
+    await reports.insert_one(doc)
+    return doc
+
+
+async def get_report(report_id: str, teacher_id: str) -> dict | None:
+    return await reports.find_one({"_id": report_id, "teacher_id": teacher_id})
+
+
+async def list_reports(teacher_id: str, lesson_id: str, limit: int = 20) -> list[dict]:
+    cursor = reports.find(
+        {"teacher_id": teacher_id, "lesson_id": lesson_id},
+        {"created_at": 1, "sections.headline": 1, "grounding.grounded": 1},
+    ).sort("created_at", DESCENDING).limit(limit)
+    return [doc async for doc in cursor]
 
 
 def evidence_from_doc(doc: dict) -> EvidenceLog:

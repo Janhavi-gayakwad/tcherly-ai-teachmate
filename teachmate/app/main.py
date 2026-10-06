@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from . import report as reports
 from . import store
 from .assistant import AssistantTurn, TeachMate
 from .auth import Teacher, current_teacher
@@ -70,6 +71,10 @@ class ReflectionIn(BaseModel):
 
 class DraftRequest(BaseModel):
     conversation_id: str
+
+
+class ReportRequest(BaseModel):
+    lesson_id: str = Field(description="Lesson slug or _id")
 
 
 # ---------------------------------------------------------------------------
@@ -236,3 +241,51 @@ async def save_reflection(body: ReflectionIn, teacher: Teacher = Depends(current
     if body.conversation_id and body.proposal_id:
         await store.mark_proposal_saved(body.conversation_id, teacher.id, body.proposal_id, str(bookmark["_id"]))
     return {"success": True, "bookmark": bookmark}
+
+
+def report_view(doc: dict) -> dict:
+    """A stored report as the website shows it (the full evidence log stays server-side)."""
+    return {
+        "id": doc["_id"],
+        **{k: doc.get(k) for k in ("lesson_id", "lesson_slug", "created_at", "model", "stats", "moments", "sections", "citations", "grounding", "repaired")},
+    }
+
+
+@app.post("/reports")
+async def create_report(body: ReportRequest, teacher: Teacher = Depends(current_teacher)) -> dict:
+    """Generate a lesson report: key moments, what students said, the teacher's reflections, open questions, strategies."""
+    ctx = await open_lesson(teacher, body.lesson_id)
+    try:
+        report = await reports.generate(assistant, ctx)
+    except TcherlyAPIError as error:
+        raise HTTPException(status_code=error.status, detail=str(error))
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error))
+    finally:
+        await ctx.client.aclose()
+    return report_view(await store.save_report(teacher.id, report))
+
+
+@app.get("/reports")
+async def list_reports(lesson_id: str = Query(...), teacher: Teacher = Depends(current_teacher)) -> list[dict]:
+    ctx = await open_lesson(teacher, lesson_id)
+    lesson = await ctx.lesson()
+    await ctx.client.aclose()
+    docs = await store.list_reports(teacher.id, str(lesson["_id"]))
+    return [
+        {
+            "id": d["_id"],
+            "created_at": d["created_at"],
+            "headline": (d.get("sections") or {}).get("headline", ""),
+            "grounded": (d.get("grounding") or {}).get("grounded"),
+        }
+        for d in docs
+    ]
+
+
+@app.get("/reports/{report_id}")
+async def get_report(report_id: str, teacher: Teacher = Depends(current_teacher)) -> dict:
+    doc = await store.get_report(report_id, teacher.id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Report not found")
+    return report_view(doc)

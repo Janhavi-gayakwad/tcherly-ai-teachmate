@@ -8,6 +8,7 @@ import LandingPage from "pages/landing";
 import CourseId from "pages/courses/_id";
 import LessonId from "pages/lesson-id";
 import LessonIdDashboard from "pages/lesson-id-dashboard";
+import LessonReport from "pages/lesson-report";
 import NotFoundPage from "pages/not-found";
 import ForgotPasswordPage from "pages/forgot-password";
 import ResetPasswordPage from "pages/reset-password";
@@ -31,6 +32,7 @@ const routes = [
   { to: "/instructions", name: "Instructions", component: () => <NotFoundPage underConstruction />, exact: true },
   { to: "/c/:course_id", name: "Course", component: CourseId, exact: true },
   { to: "/l/:id/dashboard", name: "Lesson-id-dashboard", component: LessonIdDashboard, exact: true },
+  { to: "/l/:id/report/:reportId", name: "Lesson-report", component: LessonReport, exact: true },
   { to: "/l/:id", name: "Lesson-id", component: LessonId, exact: true },
   { to: "/tour", name: "Dashboard tour", component: DashboardTourPage, exact: true },
 ];

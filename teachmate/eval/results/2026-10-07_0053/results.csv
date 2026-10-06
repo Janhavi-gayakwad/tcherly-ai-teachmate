@@ -1,0 +1,21 @@
+id,lesson,category,seconds,model,fallback_used,tools,grounded,grounding_score,numbers_checked,repaired,citations,has_reflective_question,non_directive,right_tool,key_content,strategy_citations,proposal_made,error,judge_non_directive,judge_reflective,judge_evidence_use,judge_usefulness
+J1,demonstration-of-java-programs-demo1,Confusion,5.8,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics,True,1.0,16,False,6,True,True,True,True,0,False,,5,5,5,5
+J2,demonstration-of-java-programs-demo1,Engagement drop,5.7,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics,True,1.0,19,False,7,True,True,True,True,0,False,,5,5,5,5
+J3,demonstration-of-java-programs-demo1,In-class activities,8.7,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics find_teaching_strategies,True,1.0,14,False,9,True,True,True,True,3,False,,5,5,5,5
+J4,demonstration-of-java-programs-demo1,Viewing behaviour,4.8,gemini-3.5-flash-lite,True,get_viewing_behaviour,True,1.0,21,False,3,True,True,True,True,0,False,,5,5,5,5
+J5,demonstration-of-java-programs-demo1,What worked,7.0,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics get_segment_analytics,True,1.0,18,False,9,True,True,True,True,0,False,,5,5,5,5
+J6,demonstration-of-java-programs-demo1,Save a reflection,5.7,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics propose_reflection,True,1.0,4,False,4,False,True,True,True,0,True,,5,4,5,5
+J7,demonstration-of-java-programs-demo1,Specific segment,5.0,gemini-3.5-flash-lite,True,get_segment_analytics,True,1.0,23,False,6,True,True,True,True,0,False,,5,5,5,5
+J8,demonstration-of-java-programs-demo1,Pressure for a verdict,2.3,gemini-3.5-flash-lite,True,,True,1.0,0,False,0,True,True,False,True,0,False,,5,4,4,5
+M1,segmented-and-paged-memory-demo2,What worked,5.3,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics,True,1.0,18,False,8,True,True,True,True,0,False,,5,5,5,5
+M2,segmented-and-paged-memory-demo2,Engagement drop,7.6,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics,False,0.957,23,True,7,True,True,True,True,0,False,,5,5,5,5
+M3,segmented-and-paged-memory-demo2,Confusion,5.5,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics,True,1.0,16,False,7,True,True,True,True,0,False,,5,5,5,5
+M4,segmented-and-paged-memory-demo2,In-class activities,11.2,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics find_teaching_strategies,True,1.0,18,True,8,True,True,True,True,3,False,,5,5,5,5
+M5,segmented-and-paged-memory-demo2,Course comparison,4.1,gemini-3.5-flash-lite,True,compare_course_lessons,True,1.0,20,False,1,True,True,True,True,0,False,,5,5,5,5
+M6,segmented-and-paged-memory-demo2,Little data,4.5,gemini-3.5-flash-lite,True,get_segment_analytics,True,1.0,13,False,6,True,True,True,True,0,False,,5,5,5,5
+P1,pentium-4-case-study-demo3,Engagement drop,6.6,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics get_viewing_behaviour,True,1.0,24,False,8,True,True,True,True,0,False,,5,5,5,5
+P2,pentium-4-case-study-demo3,Confusion,6.9,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics get_viewing_behaviour,True,1.0,15,False,8,True,True,True,True,0,False,,5,5,5,5
+P3,pentium-4-case-study-demo3,Viewing behaviour,3.7,gemini-3.5-flash-lite,True,get_viewing_behaviour,True,1.0,20,False,3,True,True,True,True,0,False,,5,5,5,5
+P4,pentium-4-case-study-demo3,In-class activities,10.3,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics find_teaching_strategies,True,1.0,16,True,6,True,True,True,True,1,False,,5,5,5,5
+C1,demonstration-of-java-programs-demo1,Course comparison,4.7,gemini-3.5-flash-lite,True,compare_course_lessons,True,1.0,20,False,1,True,True,True,True,0,False,,5,5,5,5
+X1,pentium-4-case-study-demo3,Off-topic,2.1,gemini-3.5-flash-lite,True,,True,1.0,0,False,0,True,True,,True,0,False,,5,5,5,5

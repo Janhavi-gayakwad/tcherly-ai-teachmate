@@ -75,6 +75,14 @@ const LESSONS = [
     desc: "Java installation, Hello World, a 1-D array program (TestArray) and a 3-D array program (a3DArray).",
     minutes: 30,
     watchRate: 0.62,
+    // Jumps back to the start of TestArray (S3) and of the 3-D array program (S4); a few skip the setup part (S1).
+    viewing: {
+      rewatch: [
+        { to: 17, from: [18, 23], rate: 0.32 },
+        { to: 25, from: [26, 29], rate: 0.2 },
+      ],
+      skip: [{ to: 6, from: [1, 4], rate: 0.14 }],
+    },
     segments: [
       {
         label: "S1: installation, environment variables, compile & run",
@@ -138,6 +146,8 @@ const LESSONS = [
     desc: "Segmentation with schematics and animations, paging, and a closing comparison triggered by a question.",
     minutes: 8,
     watchRate: 0.95,
+    // Some re-watch the start of the paging explanation (unclear presentation).
+    viewing: { rewatch: [{ to: 4, from: [5, 6], rate: 0.22 }], skip: [] },
     segments: [
       {
         label: "Segmented memory explained with a schematic and animation",
@@ -173,13 +183,27 @@ const LESSONS = [
         },
       },
     ],
-    bookmarks: [],
+    bookmarks: [
+      {
+        topic: "Page-table walkthrough felt too fast",
+        time_from: 3, time_to: 6,
+        feedback_type: ["difficult", "boring"],
+        linechart_feedback: ["net_difficult", "net_engaging"],
+        questions: [{ name: "Students said the address translation went too fast and the slide was cluttered. Would tracing one address step by step help?", action: "" }],
+        actions: [{ question: 0, action: "Traced one logical address through the page table on the whiteboard in the live class, one step at a time; students said it finally made sense.", future_action: "Add the same step-by-step trace to the video." }],
+      },
+    ],
   },
   {
     name: "Pentium 4 Case Study",
     desc: "Lecture capture: Pentium 4 pipeline and NetBurst microarchitecture, ending with a bullet-point recap.",
     minutes: 14,
     watchRate: 0.7,
+    // Students skip past the stretch with poor audio, or go back because they couldn't hear.
+    viewing: {
+      rewatch: [{ to: 5, from: [6, 8], rate: 0.18 }],
+      skip: [{ to: 10, from: [5, 8], rate: 0.24 }],
+    },
     segments: [
       {
         label: "Introduction and architecture overview",
@@ -236,6 +260,34 @@ const LESSONS = [
 
 const FIRST_NAMES = ["Aarav", "Diya", "Rohan", "Ananya", "Vihaan", "Isha", "Kabir", "Meera", "Arjun", "Sara", "Aditya", "Riya", "Kunal", "Neha", "Yash", "Pooja", "Siddharth", "Tanvi", "Harsh", "Sneha", "Omkar", "Priya", "Nikhil", "Aisha", "Varun", "Kavya", "Rahul", "Shruti", "Dev", "Nisha"];
 const LAST_NAMES = ["Patil", "Sharma", "Iyer", "Deshmukh", "Kulkarni", "Reddy", "Nair", "Joshi", "Gupta", "Shah", "Mehta", "Rao"];
+
+// ---------------------------------------------------------------------------
+// Viewing patterns (re-watching and skipping). They use their own random sequence so that adding
+// them doesn't change any of the feedback generated with `rand`.
+// ---------------------------------------------------------------------------
+const viewRand = mulberry32(7300401);
+const viewChance = (p) => viewRand() < p;
+const viewInt = (min, max) => min + Math.floor(viewRand() * (max - min + 1));
+
+const addViewingPatterns = (viewing, student, lesson, logs, startedAt) => {
+  if (!viewing) return;
+  const when = (sec) => new Date(startedAt + sec * 1000 + viewInt(0, 400) * 1000);
+  [
+    ["rewatch", "backward_seek"],
+    ["skip", "forward_seek"],
+  ].forEach(([kind, action]) => {
+    (viewing[kind] || []).forEach((pattern) => {
+      if (!viewChance(pattern.rate)) return;
+      // Seeks are logged at the position the student lands on (as the real student page does).
+      const landing = (pattern.to - 1) * 60 + viewInt(5, 55);
+      const leftFrom = viewInt(pattern.from[0], pattern.from[1]) * 60 + viewInt(0, 59);
+      logs.push({ student: student._id, lesson: lesson._id, action, duration: landing, date_client: when(leftFrom) });
+      if (kind === "rewatch" && viewChance(0.35)) {
+        logs.push({ student: student._id, lesson: lesson._id, action, duration: landing + viewInt(0, 4), date_client: when(leftFrom + 90) });
+      }
+    });
+  });
+};
 
 // ---------------------------------------------------------------------------
 // Feedback generation
@@ -305,6 +357,7 @@ const generateLessonFeedback = (lessonSpec, lesson, students, lessonStart) => {
       }
     });
 
+    addViewingPatterns(lessonSpec.viewing, student, lesson, logs, startedAt);
     logs.push({ student: student._id, lesson: lesson._id, action: "lesson_leave", duration: seconds, date_client: at(seconds) });
   });
 
@@ -326,8 +379,9 @@ const removeDemoData = async () => {
   await Log.deleteMany({ lesson: { $in: lessonIds } });
   await Bookmark.deleteMany({ _id: { $in: bookmarkIds } });
   await Lesson.deleteMany({ _id: { $in: lessonIds } });
-  // TeachMate (FastAPI) conversations about these lessons
+  // TeachMate (FastAPI) conversations and reports about these lessons
   await mongoose.connection.collection("teachmate_conversations").deleteMany({ lesson_id: { $in: lessonIds.map(String) } });
+  await mongoose.connection.collection("teachmate_reports").deleteMany({ lesson_id: { $in: lessonIds.map(String) } });
   await Course.deleteMany({ _id: { $in: courses.map((c) => c._id) } });
   const students = await Student.deleteMany({ email: new RegExp(`@${STUDENT_EMAIL_DOMAIN.replace(/\./g, "\\.")}$`) });
   const teacher = await User.deleteOne({ email: DEMO_TEACHER.email });

@@ -335,3 +335,143 @@ def reflections(log: EvidenceLog, lesson: dict) -> list[Evidence]:
             )
         )
     return out
+
+
+# ---------------------------------------------------------------------------
+# Viewing behaviour (play/pause/seek logs)
+# ---------------------------------------------------------------------------
+SEEK_LABELS = {
+    "rewinds": ("Most re-watched spots", "the minutes students jumped back to in order to watch again", ("jump back", "jumps back")),
+    "skips": ("Spots students skipped ahead to", "the minutes students jumped forward to, skipping what came just before", ("jump forward", "jumps forward")),
+}
+
+
+def _n(count: int, singular: str, plural: str | None = None) -> str:
+    return f"{count} {singular if count == 1 else (plural or singular + 's')}"
+
+
+def _chart_note(series_by_minute: dict[int, dict], minute: int) -> str:
+    m = series_by_minute.get(minute)
+    if not m:
+        return ""
+    return f"; on the chart there, net difficulty {m['net_difficult']:+d} and net engagement {m['net_engagement']:+d}"
+
+
+def viewing_behaviour(
+    log: EvidenceLog,
+    behaviour: dict,
+    feedback: dict,
+    start_min: int | None = None,
+    end_min: int | None = None,
+    top_k: int = 3,
+) -> list[Evidence]:
+    """Evidence about how students watched: jumps back (re-watching), jumps forward (skipping), pauses, reach.
+
+    Hotspots count students, not clicks, and are tied to the chart values at that minute. Pauses are only
+    reported as totals because every feedback click pauses the video automatically.
+    """
+    series = {m["minute"]: m for m in minute_series(feedback)}
+    rows = behaviour.get("per_minute", [])
+    out: list[Evidence] = []
+
+    if start_min is None or end_min is None:
+        prefix = ""
+        t = behaviour.get("totals", {})
+        n = behaviour.get("students_with_logs", 0)
+        out.append(
+            log.add(
+                f"Viewing logs exist for {n} of {behaviour.get('watched', 0)} students who opened the lecture: "
+                f"{_n(t.get('rewinds', 0), 'jump back', 'jumps back')} to re-watch, {_n(t.get('skips', 0), 'jump forward', 'jumps forward')} "
+                f"and {_n(t.get('pauses', 0), 'pause')} in total (pauses include the automatic pause when a student clicks a feedback button). "
+                f"{behaviour.get('reached_end', 0)} of {n} students ({behaviour.get('reached_end_pct', 0)}%) reached the last 10% of the video.",
+                {k: behaviour.get(k) for k in ("students_with_logs", "watched", "totals", "reached_end", "reached_end_pct")},
+                "behaviour",
+            )
+        )
+    else:
+        window = window_label(start_min, end_min)
+        prefix = f"{window}: "
+        rows = [r for r in rows if start_min < r["minute"] <= end_min]
+        w = behaviour.get("window") or {}
+        out.append(
+            log.add(
+                f"{window}: {_n(w.get('rewinds_students', 0), 'student')} jumped back to re-watch part of this segment "
+                f"({_n(w.get('rewinds', 0), 'jump back', 'jumps back')}), {_n(w.get('skips_students', 0), 'student')} jumped forward into it "
+                f"({_n(w.get('skips', 0), 'jump forward', 'jumps forward')}) and {_n(w.get('pauses_students', 0), 'student')} paused in it "
+                f"({_n(w.get('pauses', 0), 'pause')}, which include automatic pauses on feedback clicks).",
+                {"window": window, **w},
+                "behaviour",
+            )
+        )
+
+    for key, (title, meaning, noun) in SEEK_LABELS.items():
+        ranked = [r for r in sorted(rows, key=lambda r: (r[f"{key}_students"], r[key]), reverse=True) if r[f"{key}_students"] > 0][:top_k]
+        if not ranked:
+            out.append(log.add(f"{prefix}No {noun[1]} were recorded.", {"action": key}, "behaviour"))
+            continue
+        out.append(
+            log.add(
+                f"{prefix}{title} ({meaning}): "
+                + "; ".join(f"minute {r['minute']} ({_n(r[f'{key}_students'], 'student')}, {_n(r[key], *noun)}{_chart_note(series, r['minute'])})" for r in ranked)
+                + ".",
+                {"action": key, "minutes": [{k: r[k] for k in ("minute", key, f"{key}_students")} for r in ranked]},
+                "behaviour",
+            )
+        )
+
+    stopped = behaviour.get("stopped_at") or []
+    if (start_min is None or end_min is None) and stopped:
+        total = sum(s["students"] for s in stopped)
+        ranked = sorted(stopped, key=lambda s: s["students"], reverse=True)[:top_k]
+        out.append(
+            log.add(
+                f"{_n(total, 'student')} stopped watching before the last 10% of the video; their furthest point was most often "
+                + ", ".join(f"minute {s['minute']} ({_n(s['students'], 'student')})" for s in ranked)
+                + ".",
+                {"stopped_at": ranked, "total": total},
+                "behaviour",
+            )
+        )
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Retrieved knowledge (RAG): teaching strategies and the teacher's past reflections
+# ---------------------------------------------------------------------------
+def strategies(log: EvidenceLog, ranked: list[tuple], method: str) -> list[Evidence]:
+    """One evidence item per retrieved teaching-strategy note (title, summary and source in the fact)."""
+    out = []
+    for note, score in ranked:
+        out.append(
+            log.add(
+                f"Teaching strategy '{note.title}': {note.summary} Source: {note.source}",
+                {
+                    "strategy": note.title,
+                    "helps_with": note.helps_with,
+                    "when_it_can_help": note.sections.get("When it can help", ""),
+                    "try_it": note.sections.get("Try it", ""),
+                    "how_to_tell_if_it_helped": note.sections.get("How to tell if it helped", ""),
+                    "source": note.source,
+                    "retrieval": method,
+                },
+                "knowledge",
+            )
+        )
+    return out
+
+
+def past_reflections(log: EvidenceLog, items: list[dict]) -> list[Evidence]:
+    """The teacher's own saved reflections from their OTHER lessons that match the current problem."""
+    out = []
+    for item in items:
+        questions = "; ".join(item["questions"]) or "none"
+        actions = "; ".join(item["actions"]) or "none"
+        out.append(
+            log.add(
+                f"Possibly related reflection of yours from another lesson, '{item['lesson']}' ({item['window']}): topic '{item['topic']}'; "
+                f"question(s): {questions}; action(s) noted: {actions}.",
+                {k: item[k] for k in ("lesson", "window", "topic", "questions", "actions")},
+                "past_reflection",
+            )
+        )
+    return out

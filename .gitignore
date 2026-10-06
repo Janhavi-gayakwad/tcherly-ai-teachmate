@@ -63,3 +63,6 @@ typings/
 data/generated/*
 # Local backup
 backup/
+
+# Local Claude Code settings (removed from the team repo on purpose)
+.claude/

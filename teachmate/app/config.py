@@ -36,6 +36,8 @@ class Settings:
     max_tool_rounds: int = int(os.getenv("TEACHMATE_MAX_TOOL_ROUNDS", "5"))
     # Per Gemini call; a hung or very slow model is abandoned for the next fallback model.
     model_timeout_s: float = float(os.getenv("TEACHMATE_MODEL_TIMEOUT_S", "45"))
+    # A report is one long structured answer, so it gets more time per model.
+    report_timeout_s: float = float(os.getenv("TEACHMATE_REPORT_TIMEOUT_S", "120"))
     # Same database and JWT secret as the Node app (see config/index.js for the matching defaults).
     mongo_uri: str = os.getenv("DB_URI", "mongodb://localhost:27017/test-debe")
     jwt_secret: str = os.getenv("JWT_SECRET", "setup_dotenv_file_for_security")

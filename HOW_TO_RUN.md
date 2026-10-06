@@ -258,6 +258,9 @@ Your browser should open **http://localhost:8080** by itself. If not, open it yo
 6. Click **Ask TeachMate** (bottom right) → click **"Why did engagement drop?"**. The answer takes about 10–30 seconds. You'll see status lines like "Looking closely at min 17-23…" while it works.
 7. Click an evidence chip such as **E11** in the answer to see the data behind it.
 8. Type as if you were the teacher, for example: *"I think I went too fast there. Next time I'll trace the loop step by step. Can you save that?"* A reflection card appears. Click **Save to bookmarks**, and the bookmark shows up in the dashboard's *Your bookmarks* panel.
+9. Ask *"Did students re-watch any part of the lecture?"*. TeachMate checks the video player logs and finds that many students jumped back to minute 17, exactly where difficulty peaks.
+10. Ask *"What in-class activities could address the hardest part?"*. The suggestions come from the teaching-strategy library and name their sources, e.g. "worked examples (Sweller & Cooper)". The very first time, this takes a little longer because TeachMate prepares the library once.
+11. Click **Lesson report** (bottom right, next to *Ask TeachMate*), then **Generate a new report**. After about 10–60 seconds the report appears in the list. Click **Open report** to see it in a new tab, then **Download PDF**.
 
 **To see the student side:** open http://localhost:8080/l/demonstration-of-java-programs-demo1 in a private/incognito window and log in as a demo student (`student01@demo-student.tcherly.local` to `student90@...`, password `Student@1234`). You can also sign up as a new student. Click the Difficult / Easy / Boring / Engaging buttons while the video plays.
 
@@ -309,6 +312,24 @@ cd teachmate
 ```
 
 **TeachMate's API page** (try its endpoints in the browser): http://localhost:8000/docs
+
+**Run the evaluation** (tests TeachMate on 20 teacher questions and the 3 reports; about 10–15 minutes; the server must be running). The results appear in `teachmate/eval/results/`. See `teachmate/eval/README.md` for what is measured.
+
+On Windows:
+
+```
+teachmate\.venv\Scripts\python teachmate\eval\run_eval.py --judge --reports --pause 20
+```
+
+On macOS/Linux:
+
+```bash
+teachmate/.venv/bin/python teachmate/eval/run_eval.py --judge --reports --pause 20
+```
+
+If it stops because of the free-tier limit, run the same command again with `--resume teachmate/eval/results/<folder>` to continue where it stopped.
+
+**Add a teaching strategy** to the library: add a Markdown file to `teachmate/knowledge/` in the format described in `teachmate/knowledge/README.md`, then restart TeachMate.
 
 When you edit code while `npm run dev` is running, the server and TeachMate restart automatically and the website reloads by itself.
 
@@ -409,6 +430,8 @@ Find the message you see in the left column.
 | `[ai] TeachMate (the AI chat) is NOT running: GEMINI_API_KEY is missing` | No Gemini key in `.env` | Do step 5, then stop (Ctrl + C) and run `npm run dev` again |
 | Chat: *"Can't reach TeachMate. Is the TeachMate service running on http://localhost:8000?"* | The `[ai]` program isn't running | Look in the terminal for the `[ai]` error message and fix that (usually the key) |
 | Chat: *"All Gemini models are busy or rate-limited right now"* | Google's free tier is busy, or you hit the free limit | Wait a minute and ask again. If it never works, check the key for typos or create a new one |
+| Answers get slower, or it works for a while and then stops for the rest of the day | Each free key has a daily limit per model. TeachMate falls back to the next model, and when all are used up it stops until the limit resets (once a day, at midnight US Pacific time) | Wait for the reset, or use another teammate's machine with their own key. Don't run the evaluation right before a demo: it uses a lot of the daily limit |
+| A report says *"Some statements couldn't be verified"* | The grounding check found a number it couldn't match to the data (sometimes a harmless one, like the length of a time window) | Open the report: the evidence table shows the data. You can generate a new report |
 | Chat: *"Your session expired. Please refresh the page."* | Your login pass expired | Refresh the page (F5) |
 | The chat fails but the website works, and the address bar shows `127.0.0.1:8080` | TeachMate only accepts the website at `localhost` | Open **http://localhost:8080** instead |
 | Installing fails with `bcrypt`, `node-gyp` or `gyp ERR!` | One library needs build tools on some computers | **Windows:** install *Visual Studio Build Tools* with the "Desktop development with C++" option. **macOS:** `xcode-select --install`. **Linux:** `sudo apt install build-essential`. Then run `npm run setup` again |

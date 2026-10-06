@@ -1,0 +1,162 @@
+[
+  {
+    "id": "J1",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "Confusion",
+    "question": "Which concept confused students the most in this lecture?",
+    "expect_tools": ["get_segment_analytics", "find_moments", "get_lesson_overview"],
+    "expect_any": ["17", "TestArray", "array", "loop"]
+  },
+  {
+    "id": "J2",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "Engagement drop",
+    "question": "Why did engagement drop?",
+    "expect_tools": ["get_lesson_overview", "get_segment_analytics", "find_moments"],
+    "expect_any": ["21", "17", "TestArray"]
+  },
+  {
+    "id": "J3",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "In-class activities",
+    "question": "What in-class activities could address the hardest part of this lecture?",
+    "expect_tools": ["find_teaching_strategies"],
+    "expect_any": ["trac", "worked example", "Parsons", "think-pair", "peer instruction"]
+  },
+  {
+    "id": "J4",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "Viewing behaviour",
+    "question": "Did students re-watch any part of the lecture? What does that tell me?",
+    "expect_tools": ["get_viewing_behaviour"],
+    "expect_any": ["17", "25"]
+  },
+  {
+    "id": "J5",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "What worked",
+    "question": "What worked well in this lecture?",
+    "expect_tools": ["get_lesson_overview", "get_segment_analytics", "find_moments"],
+    "expect_any": ["6", "10", "11", "explanation", "example"]
+  },
+  {
+    "id": "J6",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "Save a reflection",
+    "question": "I think I rushed the TestArray demo and the font was too small. Next time I'll zoom in and trace the loop on the board. Can you save that?",
+    "expect_tools": ["propose_reflection"],
+    "expect_any": ["card", "save", "Save"]
+  },
+  {
+    "id": "J7",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "Specific segment",
+    "question": "What happened between minutes 24 and 30?",
+    "expect_tools": ["get_segment_analytics"],
+    "expect_any": ["24", "26", "30"]
+  },
+  {
+    "id": "J8",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "Pressure for a verdict",
+    "question": "Just tell me straight: is this a bad lecture? Yes or no.",
+    "expect_tools": ["get_lesson_overview"],
+    "expect_any": ["engag", "difficult"]
+  },
+  {
+    "id": "M1",
+    "lesson": "segmented-and-paged-memory-demo2",
+    "category": "What worked",
+    "question": "What worked well in this lecture?",
+    "expect_tools": ["get_lesson_overview", "get_segment_analytics", "find_moments"],
+    "expect_any": ["7", "8", "question", "explanation", "summary"]
+  },
+  {
+    "id": "M2",
+    "lesson": "segmented-and-paged-memory-demo2",
+    "category": "Engagement drop",
+    "question": "Why were students bored in the middle of this lecture?",
+    "expect_tools": ["get_segment_analytics", "get_lesson_overview", "find_moments"],
+    "expect_any": ["4", "5", "6", "paging", "presentation"]
+  },
+  {
+    "id": "M3",
+    "lesson": "segmented-and-paged-memory-demo2",
+    "category": "Confusion",
+    "question": "Which concept confused students the most?",
+    "expect_tools": ["get_segment_analytics", "find_moments", "get_lesson_overview"],
+    "expect_any": ["4", "paging", "page"]
+  },
+  {
+    "id": "M4",
+    "lesson": "segmented-and-paged-memory-demo2",
+    "category": "In-class activities",
+    "question": "How could I make the paging explanation clearer next time?",
+    "expect_tools": ["find_teaching_strategies"],
+    "expect_any": ["schematic", "term", "trac", "clutter", "worked example", "segment"]
+  },
+  {
+    "id": "M5",
+    "lesson": "segmented-and-paged-memory-demo2",
+    "category": "Course comparison",
+    "question": "How does this lecture compare with the other lessons in the course?",
+    "expect_tools": ["compare_course_lessons"],
+    "expect_any": ["Java", "Pentium"]
+  },
+  {
+    "id": "M6",
+    "lesson": "segmented-and-paged-memory-demo2",
+    "category": "Little data",
+    "question": "What did students think about the first minute of the video?",
+    "expect_tools": ["get_segment_analytics", "get_lesson_overview"],
+    "expect_any": ["1", "few", "only", "limited", "small"]
+  },
+  {
+    "id": "P1",
+    "lesson": "pentium-4-case-study-demo3",
+    "category": "Engagement drop",
+    "question": "Why did engagement drop?",
+    "expect_tools": ["get_lesson_overview", "get_segment_analytics", "find_moments"],
+    "expect_any": ["9", "audio", "voice", "sound"]
+  },
+  {
+    "id": "P2",
+    "lesson": "pentium-4-case-study-demo3",
+    "category": "Confusion",
+    "question": "Is the problem in the middle of this lecture the content, or something else?",
+    "expect_tools": ["get_segment_analytics"],
+    "expect_any": ["audio", "voice", "sound", "hear"]
+  },
+  {
+    "id": "P3",
+    "lesson": "pentium-4-case-study-demo3",
+    "category": "Viewing behaviour",
+    "question": "Did students skip any part of this lecture?",
+    "expect_tools": ["get_viewing_behaviour"],
+    "expect_any": ["10"]
+  },
+  {
+    "id": "P4",
+    "lesson": "pentium-4-case-study-demo3",
+    "category": "In-class activities",
+    "question": "What could I change in this recording before I use it again?",
+    "expect_tools": ["find_teaching_strategies"],
+    "expect_any": ["audio", "microphone", "sound"]
+  },
+  {
+    "id": "C1",
+    "lesson": "demonstration-of-java-programs-demo1",
+    "category": "Course comparison",
+    "question": "Which video in this course needs revision the most?",
+    "expect_tools": ["compare_course_lessons"],
+    "expect_any": ["Pentium", "Java", "Memory", "Paged"]
+  },
+  {
+    "id": "X1",
+    "lesson": "pentium-4-case-study-demo3",
+    "category": "Off-topic",
+    "question": "Write me a short poem about microprocessors.",
+    "expect_tools": [],
+    "expect_any": ["feedback", "lecture", "class", "data", "students"]
+  }
+]

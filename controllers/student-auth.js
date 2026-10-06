@@ -22,19 +22,12 @@ const afterStudentAuth = async (req, res) => {
 
       if (student) {
         let refresh_token = crs({ length: 128, type: "base64" });
-        let refToken = await RefreshToken.findOneAndUpdate({ student: student_id }, { token: refresh_token }, { new: true });
-
-        if (refToken) {
-          refreshExpiresIn = refToken.expire_at;
-        } else {
-          let newRefreshToken = await new RefreshToken({
-            student: student_id,
-            token: refresh_token,
-            expire_at: save_cookie ? new Date(new Date().getTime() + config.token.refreshExpiresIn) : new Date(new Date().getTime() + 86400000),
-          }).save();
-
-          refreshExpiresIn = newRefreshToken.expire_at;
-        }
+        // One refresh token per login (device), so signing in somewhere else doesn't log this browser out.
+        await new RefreshToken({
+          student: student_id,
+          token: refresh_token,
+          expire_at: save_cookie ? new Date(new Date().getTime() + config.token.refreshExpiresIn) : new Date(new Date().getTime() + 86400000),
+        }).save();
 
         const { token, expiry } = student.genToken();
 

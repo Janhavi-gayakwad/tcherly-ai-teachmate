@@ -5,9 +5,14 @@ const RTSchema = Schema({
     type: Schema.Types.ObjectId,
     ref: "user",
   },
-  token: String,
+  token: {
+    type: String,
+    index: true,
+  },
   expire_at: {
     type: Date,
+    // Each login creates its own token; MongoDB deletes expired ones automatically (TTL index).
+    expires: 0,
   },
   researcher: {
     type: Schema.Types.ObjectId,

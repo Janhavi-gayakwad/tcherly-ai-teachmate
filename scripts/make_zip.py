@@ -17,9 +17,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TOP_FOLDER = "Tcherly-TeachMate"
 SKIP_DIRS = {"node_modules", ".venv", "venv", "__pycache__", ".git", ".pytest_cache", ".cache", "coverage"}
-SKIP_PATHS = {"client/build", "data/generated"}
+# tcherly-ai-teachmate/ is a local clone of the team's GitHub repo, not part of the project.
+SKIP_PATHS = {"client/build", "data/generated", "tcherly-ai-teachmate"}
 SECRET_FILES = {".env", ".env.local", ".env.development.local", ".env.test.local", ".env.production.local", "settings.local.json"}
-SKIP_SUFFIXES = {".log", ".pyc", ".zip"}
+# Presentations (.pptx) are shared separately, not with the code.
+SKIP_SUFFIXES = {".log", ".pyc", ".zip", ".pptx"}
 
 
 def files_to_share():

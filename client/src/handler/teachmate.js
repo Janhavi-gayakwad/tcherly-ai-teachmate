@@ -32,6 +32,9 @@ export const listConversations = (auth, lessonId) => call(auth, "GET", `/convers
 export const getConversation = (auth, conversationId) => call(auth, "GET", `/conversations/${conversationId}`);
 export const draftReflection = (auth, conversationId) => call(auth, "POST", "/reflections/draft", { conversation_id: conversationId });
 export const saveReflection = (auth, reflection) => call(auth, "POST", "/reflections", reflection);
+export const listReports = (auth, lessonId) => call(auth, "GET", `/reports?lesson_id=${encodeURIComponent(lessonId)}`);
+export const getReport = (auth, reportId) => call(auth, "GET", `/reports/${reportId}`);
+export const createReport = (auth, lessonId) => call(auth, "POST", "/reports", { lesson_id: lessonId });
 
 /**
  * Stream a chat turn. `onEvent` receives each server-sent event:

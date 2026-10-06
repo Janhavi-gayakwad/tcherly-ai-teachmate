@@ -5,11 +5,133 @@ $tm-accent: #5b54a6;
 $tm-soft: #f4f3fa;
 $tm-line: #e3e1ef;
 
-.tm-launcher {
+.tm-launchers {
   position: fixed;
   right: 24px;
   bottom: 24px;
   z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.tm-launcher-secondary {
+  background: #fff !important;
+  color: $tm-ink !important;
+  border: 1px solid $tm-line !important;
+  box-shadow: 0 4px 14px rgba(45, 42, 73, 0.18) !important;
+}
+
+.tm-tabs {
+  display: flex;
+  border-bottom: 1px solid $tm-line;
+  background: $tm-soft;
+
+  button {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: #666;
+    font-size: 0.85rem;
+    cursor: pointer;
+
+    &.active {
+      border-bottom-color: $tm-ink;
+      color: $tm-ink;
+      font-weight: 600;
+    }
+  }
+}
+
+.tm-reports {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+
+  > p {
+    color: #555;
+  }
+
+  .tm-status {
+    margin-top: 10px;
+  }
+}
+
+.tm-report-generate {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tm-report-list {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tm-report-item {
+  display: block;
+  padding: 10px 12px;
+  border: 1px solid $tm-line;
+  border-radius: 10px;
+  background: #fff;
+  color: inherit;
+
+  &:hover {
+    text-decoration: none;
+    color: inherit;
+    border-color: $tm-accent;
+  }
+
+  &.new {
+    border-color: $tm-accent;
+    box-shadow: 0 0 0 2px #e2dff5;
+  }
+}
+
+.tm-report-item-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #777;
+}
+
+.tm-new {
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: $tm-accent;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.tm-report-item-headline {
+  margin: 4px 0;
+  font-size: 0.86rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tm-report-item-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: $tm-accent;
+}
+
+.tm-launcher {
   display: flex;
   align-items: center;
   gap: 8px;

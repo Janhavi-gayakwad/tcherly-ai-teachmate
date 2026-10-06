@@ -1,0 +1,372 @@
+@import "custom_colors";
+
+$tr-ink: $tdBtnColor;
+$tr-accent: #5b54a6;
+$tr-soft: #f4f3fa;
+$tr-line: #e3e1ef;
+
+.tr-page {
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+  background: #eceaf4;
+  color: #2b2b35;
+}
+
+.tr-message {
+  max-width: 820px;
+  margin: 80px auto;
+  text-align: center;
+  color: #555;
+}
+
+.tr-error {
+  color: $red;
+}
+
+.tr-toolbar {
+  max-width: 820px;
+  margin: 0 auto 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tr-toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tr-download-error {
+  margin: 0 auto 12px;
+}
+
+.tr-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.tr-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid $tr-line;
+  border-radius: 8px;
+  background: #fff;
+  color: $tr-ink;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: none;
+    border-color: $tr-accent;
+    color: $tr-ink;
+  }
+}
+
+.tr-btn-primary {
+  border-color: $tr-ink;
+  background: $tr-ink;
+  color: #fff;
+
+  &:hover {
+    color: #fff;
+    background: lighten($tr-ink, 8%);
+  }
+}
+
+.tr-report {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 48px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(45, 42, 73, 0.12);
+  font-size: 0.95rem;
+  line-height: 1.55;
+
+  p {
+    margin: 0 0 6px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 6px;
+  }
+}
+
+.tr-header {
+  border-bottom: 3px solid $tr-ink;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+
+  h1 {
+    margin: 4px 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: $tr-ink;
+  }
+}
+
+.tr-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $tr-accent;
+}
+
+.tr-meta {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.tr-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tr-stat {
+  padding: 10px;
+  border-radius: 8px;
+  background: $tr-soft;
+  border-top: 3px solid $tr-accent;
+
+  strong {
+    display: block;
+    font-size: 1.4rem;
+    line-height: 1.2;
+    color: $tr-ink;
+  }
+
+  span {
+    font-size: 0.72rem;
+    color: #555;
+  }
+}
+
+.tr-stat-difficult {
+  border-top-color: $difficult;
+}
+.tr-stat-easy {
+  border-top-color: $easy;
+}
+.tr-stat-boring {
+  border-top-color: $boring;
+}
+.tr-stat-engaging {
+  border-top-color: $engaging;
+}
+
+.tr-headline {
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  border-left: 4px solid $tr-accent;
+  border-radius: 0 8px 8px 0;
+  background: $tr-soft;
+  font-size: 1.05rem;
+  font-weight: 500;
+
+  p {
+    margin: 0;
+  }
+}
+
+.tr-section {
+  margin-top: 22px;
+
+  h2 {
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid $tr-line;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $tr-ink;
+  }
+}
+
+.tr-moment {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid $tr-line;
+  border-radius: 8px;
+  break-inside: avoid;
+}
+
+.tr-moment-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.tr-window {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: $tr-ink;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tr-students-said,
+.tr-strategy-row {
+  margin-top: 6px;
+  font-size: 0.9rem;
+
+  > span {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #777;
+  }
+}
+
+.tr-questions li::marker {
+  color: $tr-accent;
+}
+
+.tr-strategy {
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border-left: 4px solid $engaging;
+  border-radius: 0 8px 8px 0;
+  background: #f5fbf9;
+  break-inside: avoid;
+}
+
+.tr-strategy-option {
+  font-weight: 600;
+}
+
+.tr-note {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.tr-grounding {
+  &.ok {
+    color: #2e7d5b;
+  }
+
+  &.warn {
+    color: #b26a00;
+  }
+
+  svg {
+    vertical-align: -2px;
+  }
+}
+
+.tr-evidence {
+  list-style: none;
+  padding-left: 0 !important;
+  font-size: 0.8rem;
+  color: #444;
+
+  li {
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 0.3s;
+
+    &.highlight {
+      background: #fff4cc;
+    }
+  }
+
+  strong {
+    display: inline-block;
+    min-width: 34px;
+    color: $tr-accent;
+  }
+}
+
+.tr-footer {
+  margin-top: 28px;
+  padding-top: 10px;
+  border-top: 1px solid $tr-line;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+// Evidence chips come from the chat's Markdown renderer; make them quieter in the report.
+.tr-report .tm-cite {
+  display: inline-block;
+  margin: 0 1px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 4px;
+  background: #e2dff5;
+  color: $tr-accent;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.4;
+  vertical-align: 1px;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .tr-report {
+    padding: 24px 18px;
+  }
+
+  .tr-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  .tr-page {
+    padding: 0;
+    background: #fff;
+  }
+
+  .tr-toolbar {
+    display: none;
+  }
+
+  .tr-report {
+    max-width: none;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    font-size: 10.5pt;
+  }
+
+  .tr-section h2 {
+    break-after: avoid;
+  }
+
+  // Keep backgrounds and colour bars when printing to PDF.
+  .tr-report * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .tr-report .tm-cite {
+    background: none;
+    padding: 0;
+    font-size: 7pt;
+    vertical-align: super;
+  }
+}

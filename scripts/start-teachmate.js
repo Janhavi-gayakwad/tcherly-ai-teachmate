@@ -1,6 +1,9 @@
 // Starts the TeachMate FastAPI service with the project's Python virtual environment: `npm run dev:ai`.
 // Works on Windows (.venv/Scripts/python.exe) and macOS/Linux (.venv/bin/python).
-// Pass --reload to restart automatically when teachmate/app changes.
+//
+// Pass --reload to restart automatically when files in teachmate/app change. This script does the
+// watching itself instead of using uvicorn's --reload: on Windows uvicorn stops its worker with a
+// Ctrl+C signal, which never arrives when there is no console window, so the old code kept running.
 const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
@@ -39,8 +42,80 @@ if (!key || key.startsWith("<")) {
 }
 
 const port = process.env.TEACHMATE_PORT || "8000";
-const args = ["-m", "uvicorn", "app.main:app", "--app-dir", "teachmate", "--port", port];
-if (process.argv.includes("--reload")) args.push("--reload", "--reload-dir", path.join("teachmate", "app"));
+const args = ["-m", "uvicorn", "app.main:app", "--app-dir", "teachmate", "--port", port, "--timeout-graceful-shutdown", "5"];
+const reload = process.argv.includes("--reload");
 
-const child = spawn(python, args, { cwd: root, stdio: "inherit" });
-child.on("exit", (code) => process.exit(code || 0));
+let child = null;
+let restarting = false;
+
+function start() {
+  child = spawn(python, args, { cwd: root, stdio: "inherit" });
+  child.on("exit", (code) => {
+    child = null;
+    if (restarting) {
+      restarting = false;
+      start();
+    } else if (!reload) {
+      process.exit(code || 0);
+    } else if (code) {
+      console.error("[teachmate] stopped with an error; fix the code and save, and it will restart.");
+    }
+  });
+}
+
+function restart(file) {
+  console.log(`[teachmate] ${file} changed, restarting...`);
+  if (child) {
+    restarting = true;
+    child.kill();
+  } else {
+    start();
+  }
+}
+
+if (reload) {
+  const crypto = require("crypto");
+  const fingerprints = new Map(); // file -> hash of its content
+  const fingerprint = (file) => {
+    try {
+      return crypto.createHash("sha1").update(fs.readFileSync(file)).digest("hex");
+    } catch (e) {
+      return null; // deleted or being written
+    }
+  };
+  const dirs = [path.join(root, "teachmate", "app"), path.join(root, "teachmate", "app", "prompts")];
+  dirs.forEach((dir) =>
+    fs.readdirSync(dir).filter((f) => /\.(py|md)$/.test(f)).forEach((f) => fingerprints.set(path.join(dir, f), fingerprint(path.join(dir, f))))
+  );
+
+  let timer = null;
+  const pending = new Set();
+  // Watch the app folder and its prompts (non-recursive watching works on every platform). Restart only when a
+  // file's content really changed: sync tools such as OneDrive touch files without changing them.
+  for (const dir of dirs) {
+    fs.watch(dir, (_, filename) => {
+      if (!filename || !/\.(py|md)$/.test(filename)) return;
+      pending.add(path.join(dir, filename));
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const changed = [...pending].filter((file) => {
+          const current = fingerprint(file);
+          if (current === fingerprints.get(file)) return false;
+          fingerprints.set(file, current);
+          return true;
+        });
+        pending.clear();
+        if (changed.length) restart(changed.map((file) => path.basename(file)).join(", "));
+      }, 300);
+    });
+  }
+}
+
+const stop = () => {
+  if (child) child.kill();
+  process.exit(0);
+};
+process.on("SIGINT", stop);
+process.on("SIGTERM", stop);
+
+start();

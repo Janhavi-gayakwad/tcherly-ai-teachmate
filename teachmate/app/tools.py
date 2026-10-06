@@ -5,9 +5,15 @@ from typing import Any
 
 from google.genai import types
 
-from . import analytics
+from . import analytics, knowledge
 from .analytics import EvidenceLog
 from .tcherly_client import TcherlyAPIError, TcherlyClient
+
+# Past reflections are shortlisted by semantic similarity (at most MAX_PAST_REFLECTIONS above a loose floor) and
+# offered as "possibly related"; the model decides whether one really addresses the same kind of problem.
+# Raw scores alone are too close to separate related from unrelated reflections reliably.
+REFLECTION_MATCH = 0.80
+MAX_PAST_REFLECTIONS = 2
 
 TOOL_SPECS: list[dict[str, Any]] = [
     {
@@ -61,9 +67,43 @@ TOOL_SPECS: list[dict[str, Any]] = [
         "parameters": {"type": "object", "properties": {}},
     },
     {
+        "name": "get_viewing_behaviour",
+        "description": (
+            "How students WATCHED the video, from the player logs: where they jumped back to re-watch, where they "
+            "skipped ahead, pause totals, and how far they got (who reached the end). Each hotspot comes with the "
+            "chart values at that minute. Use it to strengthen or question what the feedback shows, e.g. whether a "
+            "difficult part was also re-watched. Without start_min/end_min it covers the whole lecture."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "start_min": {"type": "integer", "description": "Optional window start in video minutes."},
+                "end_min": {"type": "integer", "description": "Optional window end in video minutes."},
+            },
+        },
+    },
+    {
         "name": "get_teacher_reflections",
         "description": "The teacher's own saved bookmarks, questions and actions for the current lesson (their earlier reflections).",
         "parameters": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "find_teaching_strategies",
+        "description": (
+            "Search TeachMate's library of research-based teaching strategies (each with its source) and the teacher's "
+            "own saved reflections from their OTHER lessons. Call it BEFORE suggesting options, in-class activities or "
+            "changes, with a one-line description of the problem as students experienced it (what they reported and why), "
+            "e.g. 'students found the loop demonstration too fast and the code too small to read'. Build suggestions on "
+            "what it returns and cite it."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "problem": {"type": "string", "description": "The problem in students' terms: feedback, reasons, behaviour."},
+                "top_k": {"type": "integer", "description": "How many strategies to return (1-5).", "default": 3},
+            },
+            "required": ["problem"],
+        },
     },
     {
         "name": "propose_reflection",
@@ -116,6 +156,7 @@ class ToolContext:
         self._turn_start = 0
         self._feedback_cache: dict[tuple[str, int, int], dict] = {}
         self._lesson: dict | None = None
+        self._other_reflections: list[dict] | None = None
 
     async def lesson(self) -> dict:
         if self._lesson is None:
@@ -178,11 +219,70 @@ class ToolContext:
                     rows.append(analytics.lesson_summary_row(data["lesson"], data["feedback"]))
             return analytics.compare_lessons(log, course.get("name", "this course"), rows)
 
+        if name == "get_viewing_behaviour":
+            data = await self.feedback_for(self.lesson_id, 0, minutes)
+            if args.get("start_min") is not None and args.get("end_min") is not None:
+                start = max(0, min(int(args["start_min"]), minutes - 1))
+                end = max(start + 1, min(int(args["end_min"]), minutes))
+                behaviour = await self.client.behaviour(self.lesson_id, start, end)
+                return analytics.viewing_behaviour(log, behaviour, data["feedback"], start, end)
+            behaviour = await self.client.behaviour(self.lesson_id)
+            return analytics.viewing_behaviour(log, behaviour, data["feedback"])
+
+        if name == "find_teaching_strategies":
+            problem = str(args["problem"]).strip()
+            if not problem:
+                raise ValueError("describe the problem to search for")
+            return await self.retrieve_knowledge(problem, max(1, min(int(args.get("top_k", 3)), 5)))
+
         if name == "get_teacher_reflections":
             # `lesson` comes from the owner-checked feedback endpoint and has bookmarks populated.
             return analytics.reflections(log, lesson)
 
         raise ValueError(f"unknown tool {name}")
+
+    async def other_reflections(self, max_lessons: int = 30) -> list[dict]:
+        """The teacher's saved reflections (bookmark questions/actions) from their other lessons."""
+        if self._other_reflections is not None:
+            return self._other_reflections
+        lesson = await self.lesson()
+        items: list[dict] = []
+        scanned = 0
+        for course in await self.client.courses():
+            full = await self.client.course(str(course["_id"]))
+            for other in full.get("lessons", []):
+                if str(other.get("_id")) == str(lesson.get("_id")) or not other.get("bookmarks") or scanned >= max_lessons:
+                    continue
+                scanned += 1
+                detail = await self.client.lesson(other.get("id") or str(other["_id"]))
+                for bookmark in detail.get("bookmarks") or []:
+                    if not isinstance(bookmark, dict):
+                        continue
+                    questions = [q.get("name") for q in bookmark.get("questions", []) if q.get("name")]
+                    actions = [a.get("action") or a.get("future_action") for a in bookmark.get("actions", []) if a.get("action") or a.get("future_action")]
+                    if questions or actions:
+                        items.append(
+                            {
+                                "lesson": detail.get("name", ""),
+                                "window": analytics.window_label(bookmark.get("time_from", 0), bookmark.get("time_to", 0)),
+                                "topic": bookmark.get("topic") or "",
+                                "questions": questions,
+                                "actions": actions,
+                            }
+                        )
+        self._other_reflections = items
+        return items
+
+    async def retrieve_knowledge(self, problem: str, top_k: int = 3) -> list[analytics.Evidence]:
+        """RAG: best-matching strategy notes plus the teacher's matching reflections from other lessons."""
+        reflections = await self.other_reflections()
+        texts = [f"{r['topic']}. {' '.join(r['questions'])} {' '.join(r['actions'])}" for r in reflections]
+        result = await knowledge.library().search(problem, top_k=top_k, extra_texts=texts)
+        threshold = REFLECTION_MATCH if result["method"] == "embeddings" else 0.01
+        matched = sorted(((score, r) for score, r in zip(result["extra"], reflections) if score >= threshold), key=lambda p: -p[0])
+        return analytics.strategies(self.evidence, result["notes"], result["method"]) + analytics.past_reflections(
+            self.evidence, [r for _, r in matched[:MAX_PAST_REFLECTIONS]]
+        )
 
     def begin_turn(self) -> None:
         self._turn_start = len(self.proposals)

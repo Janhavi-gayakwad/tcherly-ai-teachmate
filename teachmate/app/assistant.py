@@ -37,6 +37,8 @@ TOOL_STATUS = {
     "find_moments": "Finding the key moments",
     "compare_course_lessons": "Comparing the lessons in this course",
     "get_teacher_reflections": "Checking your saved bookmarks and reflections",
+    "get_viewing_behaviour": "Checking how students watched (re-watching, skipping, pausing)",
+    "find_teaching_strategies": "Looking up teaching strategies and your past reflections",
     "propose_reflection": "Drafting a reflection for you to save",
 }
 
@@ -158,8 +160,22 @@ class TeachMate:
             "discussed. Return JSON only."
         )
         contents = list(history) + [types.Content(role="user", parts=[types.Part.from_text(text=instruction)])]
+        draft, _ = await self.generate_json(contents, schema, purpose="draft a reflection")
+        draft["start_min"] = max(0, min(int(draft["start_min"]), lesson_minutes - 1))
+        draft["end_min"] = max(draft["start_min"] + 1, min(int(draft["end_min"]), lesson_minutes))
+        return draft
+
+    async def generate_json(
+        self,
+        contents: list[types.Content],
+        schema: dict[str, Any],
+        purpose: str = "answer",
+        timeout_s: float | None = None,
+        system: str | None = None,
+    ) -> tuple[dict[str, Any], str]:
+        """One structured (JSON) call, trying each model in turn. Returns (data, model used)."""
         config = types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
+            system_instruction=system or SYSTEM_PROMPT,
             response_mime_type="application/json",
             response_json_schema=schema,
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
@@ -169,19 +185,18 @@ class TeachMate:
             try:
                 response = await asyncio.wait_for(
                     self.client.aio.models.generate_content(model=model, contents=contents, config=config),
-                    timeout=settings.model_timeout_s,
+                    timeout=timeout_s or settings.model_timeout_s,
                 )
-                draft = json.loads(response.text)
-                draft["start_min"] = max(0, min(int(draft["start_min"]), lesson_minutes - 1))
-                draft["end_min"] = max(draft["start_min"] + 1, min(int(draft["end_min"]), lesson_minutes))
-                return draft
+                return json.loads(response.text), model
             except errors.APIError as error:
                 if error.code not in RETRYABLE_CODES:
                     raise
+                log.warning("model %s unavailable (HTTP %s) while trying to %s", model, error.code, purpose)
                 last_error = error
-            except TimeoutError as error:
+            except (TimeoutError, json.JSONDecodeError, TypeError) as error:
+                log.warning("model %s failed (%s) while trying to %s", model, type(error).__name__, purpose)
                 last_error = error
-        raise RuntimeError(f"Couldn't draft a reflection right now ({last_error}).")
+        raise RuntimeError(f"Couldn't {purpose} right now: all Gemini models are busy or rate-limited ({last_error}). Please try again in a minute.")
 
     # ------------------------------------------------------------------
     # Internals

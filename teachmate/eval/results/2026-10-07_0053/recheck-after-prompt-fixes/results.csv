@@ -1,0 +1,5 @@
+id,lesson,category,seconds,model,fallback_used,tools,grounded,grounding_score,numbers_checked,repaired,citations,has_reflective_question,non_directive,right_tool,key_content,strategy_citations,proposal_made,error,judge_non_directive,judge_reflective,judge_evidence_use,judge_usefulness
+J1,demonstration-of-java-programs-demo1,Confusion,6.0,gemini-3.5-flash-lite,True,get_lesson_overview get_segment_analytics,True,1.0,14,False,6,True,True,True,True,0,False,,5,5,5,5
+J6,demonstration-of-java-programs-demo1,Save a reflection,4.6,gemini-3.5-flash-lite,True,get_lesson_overview propose_reflection,True,1.0,5,False,2,True,True,True,True,0,True,,5,5,5,5
+J8,demonstration-of-java-programs-demo1,Pressure for a verdict,4.1,gemini-3.5-flash-lite,True,get_lesson_overview,True,1.0,16,False,5,True,True,True,True,0,False,,5,5,5,5
+X1,pentium-4-case-study-demo3,Off-topic,2.2,gemini-3.5-flash-lite,True,,True,1.0,0,False,0,True,True,,True,0,False,,5,3,4,4

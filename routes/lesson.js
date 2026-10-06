@@ -15,7 +15,7 @@ const {
 } = require("../controllers/lesson");
 const { getLesson, checkLessonBelongsToUser, checkBookmarkBelongsToUser } = require("../controllers/course");
 const { recordFeedback, getAllFeedbackForLesson, watchedVideo, exportFeedbackForLesson } = require("../controllers/feedback");
-const { logInteraction } = require('../controllers/log')
+const { logInteraction, getViewingBehaviour } = require('../controllers/log')
 
 const ownsLesson = verifyResourceIsForUser(checkLessonBelongsToUser);
 const ownsBookmark = verifyResourceIsForUser(checkBookmarkBelongsToUser);
@@ -23,6 +23,7 @@ const ownsBookmark = verifyResourceIsForUser(checkBookmarkBelongsToUser);
 router.get("/:id", getLesson);
 router.get("/:id/feedback", verifyMiddleware, ownsLesson, getAllFeedbackForLesson);
 router.get("/:id/feedback-export", rVerifyMiddleware, exportFeedbackForLesson);
+router.get("/:id/behaviour", verifyMiddleware, ownsLesson, getViewingBehaviour);
 
 router.post("/:id", studentVerifyMiddleware, recordFeedback);
 router.post("/:id/watched", studentVerifyMiddleware, watchedVideo);

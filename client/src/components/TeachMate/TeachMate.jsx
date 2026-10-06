@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiEdit3, FiMessageCircle, FiPlus, FiSend, FiX } from "react-icons/fi";
+import { FiAlertTriangle, FiCheckCircle, FiClock, FiEdit3, FiFileText, FiMessageCircle, FiPlus, FiSend, FiX } from "react-icons/fi";
 import { useAuth } from "provider/auth";
 import useFeedback from "provider/feedback";
 import { draftReflection, getConversation, listConversations, saveReflection, streamChat } from "handler/teachmate";
 import Markdown from "./Markdown";
 import ReflectionCard from "./ReflectionCard";
+import ReportsPanel from "./ReportsPanel";
 import "assets/styles/teachmate.scss";
 
 const STARTERS = [
@@ -37,6 +38,7 @@ export default function TeachMate() {
   const { getAuthHeader } = useAuth();
   const { lesson, range, setBookmarks } = useFeedback();
   const [open, setOpen] = useState(false);
+  const [view, setView] = useState("chat"); // "chat" | "reports"
   const [messages, setMessages] = useState([]);
   const [conversationId, setConversationId] = useState(null);
   const [input, setInput] = useState("");
@@ -205,11 +207,22 @@ export default function TeachMate() {
 
   if (!lessonId) return null;
 
+  const openPanel = (nextView) => {
+    setView(nextView);
+    setHistory(null);
+    setOpen(true);
+  };
+
   if (!open) {
     return (
-      <button type="button" className="tm-launcher" onClick={() => setOpen(true)} title="Talk through your class data with TeachMate">
-        <FiMessageCircle /> <span>Ask TeachMate</span>
-      </button>
+      <div className="tm-launchers">
+        <button type="button" className="tm-launcher tm-launcher-secondary" onClick={() => openPanel("reports")} title="Create or open a lesson report">
+          <FiFileText /> <span>Lesson report</span>
+        </button>
+        <button type="button" className="tm-launcher" onClick={() => openPanel("chat")} title="Talk through your class data with TeachMate">
+          <FiMessageCircle /> <span>Ask TeachMate</span>
+        </button>
+      </div>
     );
   }
 
@@ -221,19 +234,41 @@ export default function TeachMate() {
           <div className="tm-subtitle">{lesson.name}</div>
         </div>
         <div className="tm-header-actions">
-          <button type="button" className="tm-icon" title="Previous conversations" onClick={toggleHistory}>
-            <FiClock />
-          </button>
-          <button type="button" className="tm-icon" title="New conversation" onClick={newChat} disabled={busy}>
-            <FiPlus />
-          </button>
+          {view === "chat" && (
+            <>
+              <button type="button" className="tm-icon" title="Previous conversations" onClick={toggleHistory}>
+                <FiClock />
+              </button>
+              <button type="button" className="tm-icon" title="New conversation" onClick={newChat} disabled={busy}>
+                <FiPlus />
+              </button>
+            </>
+          )}
           <button type="button" className="tm-icon" title="Close" onClick={() => setOpen(false)}>
             <FiX />
           </button>
         </div>
       </header>
 
-      {history && (
+      <nav className="tm-tabs">
+        <button type="button" className={view === "chat" ? "active" : ""} onClick={() => setView("chat")}>
+          <FiMessageCircle /> Chat
+        </button>
+        <button
+          type="button"
+          className={view === "reports" ? "active" : ""}
+          onClick={() => {
+            setHistory(null);
+            setView("reports");
+          }}
+        >
+          <FiFileText /> Reports
+        </button>
+      </nav>
+
+      {view === "reports" && <ReportsPanel lessonId={lessonId} getAuthHeader={getAuthHeader} />}
+
+      {view === "chat" && history && (
         <div className="tm-history">
           {history.length === 0 && <div className="tm-muted">No earlier conversations for this lesson.</div>}
           {history.map((c) => (
@@ -245,6 +280,8 @@ export default function TeachMate() {
         </div>
       )}
 
+      {view === "chat" && (
+      <>
       <div className="tm-messages" ref={scrollRef}>
         {messages.length === 0 && (
           <div className="tm-empty">
@@ -329,6 +366,8 @@ export default function TeachMate() {
           </button>
         </div>
       </footer>
+      </>
+      )}
     </aside>
   );
 }
